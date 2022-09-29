@@ -1,3 +1,8 @@
+import none as none
+from bs4 import BeautifulSoup
+import requests
+
+
 def ekstraksi_data():
     """
     Tanggal: 28 September 2022
@@ -9,18 +14,32 @@ def ekstraksi_data():
     Keterangan: Dirasakan (Skala MMI): II - III Kabaena Timur
     :return:
     """
-    hasil = dict()
-    hasil["tanggal"] = "28 September 2022"
-    hasil["waktu"] = "12:44:25 WIB"
-    hasil["magnitudo"] = 3.1
-    hasil["lokasi"] = {"ls": 5.25, "bt": 122.03}
-    hasil["pusat"] = "Berada di darat 7 Km Barat Laut Kabaena Timur"
-    hasil["ket"] = "Dirasakan (Skala MMI): II-III Kabanea Timur"
+    try:
+        content = requests.get('https://bmkg.go.id')
+    except Exception:
+        return None
 
-    return hasil
+    if content.status_code == 200:
+        soup = BeautifulSoup(content.text, 'html.parser')
+        title = soup.find('title')
+        print(title.string)
 
+        hasil = dict()
+        hasil["tanggal"] = "28 September 2022"
+        hasil["waktu"] = "12:44:25 WIB"
+        hasil["magnitudo"] = 3.1
+        hasil["lokasi"] = {"ls": 5.25, "bt": 122.03}
+        hasil["pusat"] = "Berada di darat 7 Km Barat Laut Kabaena Timur"
+        hasil["ket"] = "Dirasakan (Skala MMI): II-III Kabanea Timur"
+        return hasil
+    else:
+        return None
 
 def tampilkan_data(result):
+    if result is None:
+        print("Tidak dapat Menemukan Data Gempa Terkini")
+        return
+
     print('\nGempa Terakhir Berdasarkan BMKG')
     print(f"Tanggal: {result['tanggal']}")
     print(f"Waktu: {result['waktu']}")
